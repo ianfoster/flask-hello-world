@@ -73,8 +73,8 @@ def hello_world():
         increment = int( ((this_time - last_time)*(last_value - earlier_value)/(last_time - earlier_time)) * cache['scale_factor'] )
         if increment < 1:
             increment = 1
+        print(f"{index}: No change, so increase by {increment} to {this_value+increment}; scale-factor={cache['scale_factor']}")
         cache['scale_factor']  /= 2 # Scale back in case repeated instances 
-        print(f'{index}: No change, so increase by estimated {increment} to {this_value+increment}') # ({this_time} - {last_time})*({last_value} - {earlier_value})/({last_time} - {earlier_time})*0.8')
         this_value += increment
     elif this_value > last_value:
         cache['earlier_value'] = last_value
