@@ -7,6 +7,12 @@ app = Flask(__name__)
 
 globus_url = "https://transfer.api.globus.org/v0.10/private/web_stats"
 
+
+# We keep a list of up to N (time, value) pairs, and also:
+#   velocity = [
+#
+#
+
 """
 Example:
 {
@@ -34,10 +40,11 @@ def get_data(url):
     bytes_to_show = bytes_value/(10 ** 9)
     bytes_to_show %= 10 ** 7
     bytes_to_show = int(bytes_to_show)
-    # print(f'    extracted: {bytes_to_show} from {bytes_value}')
+    print(f'\nGlobus bytes: {bytes_to_show} from {bytes_value}')
     return(bytes_to_show)
   
 cache = {}
+# cache['values']  = [(i, 0) for i in range(10)]
 cache['last_value']    = get_data(globus_url)
 cache['last_time']     = int(time.time())
 cache['earlier_value'] = cache['last_value'] - 1
