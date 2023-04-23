@@ -6,27 +6,20 @@ import time
 app = Flask(__name__)
 
 globus_url = "https://transfer.api.globus.org/v0.10/private/web_stats"
-
-
-# We keep a list of up to N (time, value) pairs, and also:
-#   velocity = [
-#
-#
-
 """
 Example:
-{
-  "new": {
-    "bytes": 1955402227052862012,
-    "files": 209318008246,
-    "time": "2023-04-22 22:47:02.125357"
-  },
-  "old": {
-    "bytes": 1955398391739215761,
-    "files": 209317930020,
-    "time": "2023-04-22 22:42:01.610209"
+  {
+    "new": {
+      "bytes": 1955402227052862012,
+      "files": 209318008246,
+      "time": "2023-04-22 22:47:02.125357"
+    },
+    "old": {
+      "bytes": 1955398391739215761,
+      "files": 209317930020,
+      "time": "2023-04-22 22:42:01.610209"
+    }
   }
-}
 """
 
 def get_data(url):
@@ -44,12 +37,12 @@ def get_data(url):
     return(bytes_to_show)
   
 cache = {}
-# cache['values']  = [(i, 0) for i in range(10)]
 cache['last_value']    = get_data(globus_url)
 cache['last_time']     = int(time.time())
 cache['earlier_value'] = cache['last_value'] - 1
 cache['earlier_time']  = cache['last_time'] - 1
 cache['index']         = 0
+cache['scale_factor']  = 0.5
 
 # If Globus web counter value hasn't changed, then estimate it to be
 #     <time since last reading> * <counter change rate>
@@ -77,12 +70,16 @@ def hello_world():
     
     if this_value == last_value:  # If no change in web counter
         # Set increment as above
-        increment = int( ((this_time - last_time)*(last_value - earlier_value)/(last_time - earlier_time)) * 0.8 )
+        increment = int( ((this_time - last_time)*(last_value - earlier_value)/(last_time - earlier_time)) * cache['scale_factor'] )
+        if increment < 1:
+            increment = 1
+        cache['scale_factor']  /= 2 # Scale back in case repeated instances 
         print(f'{index}: No change, so increase by estimated {increment} to {this_value+increment}') # ({this_time} - {last_time})*({last_value} - {earlier_value})/({last_time} - {earlier_time})*0.8')
         this_value += increment
     elif this_value > last_value:
         cache['earlier_value'] = last_value
         cache['earlier_time']  = last_time
+        cache['scale_factor']  = 0.5
         print(f'{index}: Increase by {this_value-last_value} to {this_value}')
     else:  # this_value < last_value, which means that we increased by too much last time
         this_value = last_value + 1
