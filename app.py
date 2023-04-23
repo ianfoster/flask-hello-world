@@ -81,13 +81,13 @@ def hello_world():
         print(f'{index}: No change, so increase by estimated {increment} to {this_value+increment}') # ({this_time} - {last_time})*({last_value} - {earlier_value})/({last_time} - {earlier_time})*0.8')
         this_value += increment
     elif this_value > last_value:
+        cache['earlier_value'] = last_value
+        cache['earlier_time']  = last_time
         print(f'{index}: Increase by {this_value-last_value} to {this_value}')
     else:  # this_value < last_value, which means that we increased by too much last time
         this_value = last_value + 1
         print(f'{index}: Ahead, so increment by 1 to  {this_value}')
 
-    cache['earlier_value'] = last_value
-    cache['earlier_time']  = last_time
     cache['last_value']    = this_value
     cache['last_time']     = this_time
     cache['index']         = cache['index'] + 1
