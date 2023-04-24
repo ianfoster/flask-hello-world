@@ -1,3 +1,10 @@
+# Works with render.com and produces data for SMIIRL
+#
+# 1) Takes the Globus JSON and extracts the bytes transferred so far.
+# 2) Extracts just the lower 7 digits of the number of GB (as SMIIRL is just 7 digits)
+# 3) Does some smoothing because Globus counter URL doesn't update fast enough
+#
+
 from flask import Flask
 import json
 import requests
@@ -51,7 +58,7 @@ cache['scale_factor']  = initial_scale_factor
 #     <counter change rate> = <recent change in value> / <recent change in seconds>
 #                           = (last_value - earlier_value)/ (last_time - earlier_time))
 #
-# The web counter can stay the same for a while, so this can result in estimates getting ahead of reports. 
+# The web counter can stay the same for a while, which can result in estimates getting ahead of reports. 
 # If so, then switch to increasing by just 1 at a time.
 
 @app.route('/')
@@ -63,11 +70,6 @@ def hello_world():
     earlier_value = cache['earlier_value']
     earlier_time  = cache['earlier_time']
     index         = cache['index']
-    
-    # print(f'== Round {cache["index"]}:')
-    # print(f'    Old : {earlier_value} at {earlier_time}') 
-    # print(f'    Last: {last_value} at {last_time}') 
-    # print(f'    New : {this_value} at {this_time}') 
     
     if this_value == last_value:  # If no change in web counter
         # Set increment as above
