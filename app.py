@@ -38,7 +38,7 @@ def get_data(url):
     data = json.loads(json_data)
 
     bytes_value = int(data['new']['bytes'])
-    bytes_to_show = bytes_value/(10 ** 9)
+    bytes_to_show = bytes_value/(10 ** 6)
     bytes_to_show %= 10 ** 7
     bytes_to_show = int(bytes_to_show)
     print(f'\nGlobus bytes: {bytes_to_show} from {bytes_value}')
